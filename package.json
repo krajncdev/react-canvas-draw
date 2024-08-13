@@ -51,8 +51,7 @@
     "react-dom": "^16.2.0",
     "style-loader": "^0.19.1"
   },
-  "author": "Martin Beierling <mbeierling@gmail.com>",
-  "homepage": "https://embiem.github.io/react-canvas-draw/",
+  "author": "Jaka Krajnc <jaka.krajnc.jk@gmail.com>",
   "license": "MIT",
   "repository": {
     "type": "git",
