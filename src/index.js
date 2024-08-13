@@ -1,14 +1,14 @@
-import React, { PureComponent } from "react";
-import PropTypes from "prop-types";
-import { LazyBrush } from "lazy-brush";
-import { Catenary } from "catenary-curve";
+import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
+import { LazyBrush } from 'lazy-brush';
+import { Catenary } from 'catenary-curve';
 
-import ResizeObserver from "resize-observer-polyfill";
+import ResizeObserver from 'resize-observer-polyfill';
 
-import CoordinateSystem, { IDENTITY } from "./coordinateSystem";
-import drawImage from "./drawImage";
-import { DefaultState } from "./interactionStateMachine";
-import makePassiveEventOption from "./makePassiveEventOption";
+import CoordinateSystem, { IDENTITY } from './coordinateSystem';
+import drawImage from './drawImage';
+import { DefaultState } from './interactionStateMachine';
+import makePassiveEventOption from './makePassiveEventOption';
 
 function midPointBtw(p1, p2) {
   return {
@@ -18,12 +18,12 @@ function midPointBtw(p1, p2) {
 }
 
 const canvasStyle = {
-  display: "block",
-  position: "absolute",
+  display: 'block',
+  position: 'absolute',
 };
 
 // The order of these is important: grid > drawing > temp > interface
-const canvasTypes = ["grid", "drawing", "temp", "interface"];
+const canvasTypes = ['grid', 'drawing', 'temp', 'interface'];
 
 const dimensionsPropTypes = PropTypes.oneOfType([
   PropTypes.number,
@@ -69,16 +69,16 @@ export default class CanvasDraw extends PureComponent {
     loadTimeOffset: 5,
     lazyRadius: 12,
     brushRadius: 10,
-    brushColor: "#444",
-    catenaryColor: "#0a0302",
-    gridColor: "rgba(150,150,150,0.17)",
-    backgroundColor: "#FFF",
+    brushColor: '#444',
+    catenaryColor: '#0a0302',
+    gridColor: 'rgba(150,150,150,0.17)',
+    backgroundColor: '#FFF',
     hideGrid: false,
     canvasWidth: 400,
     canvasHeight: 400,
     disabled: false,
-    imgSrc: "",
-    saveData: "",
+    imgSrc: '',
+    saveData: '',
     immediateLoading: false,
     hideInterface: false,
     gridSizeX: 25,
@@ -177,7 +177,7 @@ export default class CanvasDraw extends PureComponent {
     // Get a reference to the "drawing" layer of the canvas
     let canvasToExport = this.canvas.drawing;
 
-    let context = canvasToExport.getContext("2d");
+    let context = canvasToExport.getContext('2d');
 
     //cache height and width
     let width = canvasToExport.width;
@@ -190,14 +190,21 @@ export default class CanvasDraw extends PureComponent {
     var compositeOperation = context.globalCompositeOperation;
 
     //set to draw behind current content
-    context.globalCompositeOperation = "destination-over";
+    context.globalCompositeOperation = 'destination-over';
 
     // If "useBgImage" has been set to true, this takes precedence over the background colour parameter
     if (useBgImage) {
-      if (!this.props.imgSrc) return "Background image source not set";
+      if (!this.props.imgSrc) return 'Background image source not set';
 
       // Write the background image
-      this.drawImage();
+      drawImage({
+        ctx: context,
+        img: this.props.imgSrc,
+        x: 0,
+        y: 0,
+        w: this.props.canvasWidth,
+        h: this.props.canvasHeight,
+      });
     } else if (backgroundColour != null) {
       //set background color
       context.fillStyle = backgroundColour;
@@ -207,7 +214,7 @@ export default class CanvasDraw extends PureComponent {
     }
 
     // If the file type has not been specified, default to PNG
-    if (!fileType) fileType = "png";
+    if (!fileType) fileType = 'png';
 
     // Export the canvas to data URL
     let imageData = canvasToExport.toDataURL(`image/${fileType}`);
@@ -225,14 +232,14 @@ export default class CanvasDraw extends PureComponent {
   };
 
   loadSaveData = (saveData, immediate = this.props.immediateLoading) => {
-    if (typeof saveData !== "string") {
-      throw new Error("saveData needs to be of type string!");
+    if (typeof saveData !== 'string') {
+      throw new Error('saveData needs to be of type string!');
     }
 
     const { lines, width, height } = JSON.parse(saveData);
 
-    if (!lines || typeof lines.push !== "function") {
-      throw new Error("saveData.lines needs to be an array!");
+    if (!lines || typeof lines.push !== 'function') {
+      throw new Error('saveData.lines needs to be an array!');
     }
 
     this.clear();
@@ -314,7 +321,7 @@ export default class CanvasDraw extends PureComponent {
     // https://github.com/facebook/react/issues/14856
     this.canvas.interface &&
       this.canvas.interface.addEventListener(
-        "wheel",
+        'wheel',
         this.handleWheel,
         makePassiveEventOption()
       );
@@ -349,7 +356,7 @@ export default class CanvasDraw extends PureComponent {
   componentWillUnmount = () => {
     this.canvasObserver.unobserve(this.canvasContainer);
     this.canvas.interface &&
-      this.canvas.interface.removeEventListener("wheel", this.handleWheel);
+      this.canvas.interface.removeEventListener('wheel', this.handleWheel);
   };
 
   render() {
@@ -357,9 +364,9 @@ export default class CanvasDraw extends PureComponent {
       <div
         className={this.props.className}
         style={{
-          display: "block",
+          display: 'block',
           background: this.props.backgroundColor,
-          touchAction: "none",
+          touchAction: 'none',
           width: this.props.canvasWidth,
           height: this.props.canvasHeight,
           ...this.props.style,
@@ -371,14 +378,14 @@ export default class CanvasDraw extends PureComponent {
         }}
       >
         {canvasTypes.map((name) => {
-          const isInterface = name === "interface";
+          const isInterface = name === 'interface';
           return (
             <canvas
               key={name}
               ref={(canvas) => {
                 if (canvas) {
                   this.canvas[name] = canvas;
-                  this.ctx[name] = canvas.getContext("2d");
+                  this.ctx[name] = canvas.getContext('2d');
                   if (isInterface) {
                     this.coordSystem.canvas = canvas;
                   }
@@ -539,8 +546,8 @@ export default class CanvasDraw extends PureComponent {
   };
 
   drawPoints = ({ points, brushColor, brushRadius }) => {
-    this.ctx.temp.lineJoin = "round";
-    this.ctx.temp.lineCap = "round";
+    this.ctx.temp.lineJoin = 'round';
+    this.ctx.temp.lineCap = 'round';
     this.ctx.temp.strokeStyle = brushColor;
 
     this.clearWindow(this.ctx.temp);
@@ -660,7 +667,7 @@ export default class CanvasDraw extends PureComponent {
     this.image = new Image();
 
     // Prevent SecurityError "Tainted canvases may not be exported." #70
-    this.image.crossOrigin = "anonymous";
+    this.image.crossOrigin = 'anonymous';
 
     // Draw the image once loaded
     this.image.onload = this.redrawImage;
@@ -729,7 +736,7 @@ export default class CanvasDraw extends PureComponent {
     if (this.lazy.isEnabled()) {
       ctx.beginPath();
       ctx.lineWidth = 2;
-      ctx.lineCap = "round";
+      ctx.lineCap = 'round';
       ctx.setLineDash([2, 4]);
       ctx.strokeStyle = this.props.catenaryColor;
       this.catenary.drawToCanvas(
