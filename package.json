@@ -71,8 +71,5 @@
   "directories": {
     "lib": "lib",
     "test": "tests"
-  },
-  "publishConfig": {
-    "@krajncdev:registry": "https://npm.pkg.github.com"
   }
 }
