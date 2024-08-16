@@ -45,6 +45,7 @@ export default class CanvasDraw extends PureComponent {
     catenaryColor: PropTypes.string,
     gridColor: PropTypes.string,
     backgroundColor: PropTypes.string,
+    containImg: PropTypes.bool,
     hideGrid: PropTypes.bool,
     canvasWidth: dimensionsPropTypes,
     canvasHeight: dimensionsPropTypes,
@@ -73,6 +74,7 @@ export default class CanvasDraw extends PureComponent {
     catenaryColor: '#0a0302',
     gridColor: 'rgba(150,150,150,0.17)',
     backgroundColor: '#FFF',
+    containImg: false,
     hideGrid: false,
     canvasWidth: 400,
     canvasHeight: 400,
@@ -173,7 +175,17 @@ export default class CanvasDraw extends PureComponent {
    * @param {bool} useBgImage Specifies whether the canvas' current background image should also be exported. Default is false.
    * @param {string} backgroundColour The desired background colour hex code, e.g. "#ffffff" for white.
    */
-  getDataURL = (fileType, useBgImage, backgroundColour) => {
+  getDataURL = ({
+    fileType,
+    useBgImage,
+    backgroundColour,
+    resetView = false,
+  }) => {
+    // Reset the view so you don't lose any of the initial image
+    if (resetView) {
+      this.resetView();
+    }
+
     // Get a reference to the "drawing" layer of the canvas
     let canvasToExport = this.canvas.drawing;
 
@@ -199,11 +211,12 @@ export default class CanvasDraw extends PureComponent {
       // Write the background image
       drawImage({
         ctx: context,
-        img: this.props.imgSrc,
+        img: this.image,
         x: 0,
         y: 0,
         w: this.props.canvasWidth,
         h: this.props.canvasHeight,
+        containImg: this.props.containImg,
       });
     } else if (backgroundColour != null) {
       //set background color
@@ -490,7 +503,11 @@ export default class CanvasDraw extends PureComponent {
   redrawImage = () => {
     this.image &&
       this.image.complete &&
-      drawImage({ ctx: this.ctx.grid, img: this.image });
+      drawImage({
+        ctx: this.ctx.grid,
+        img: this.image,
+        containImg: this.props.containImg,
+      });
   };
 
   simulateDrawingLines = ({ lines, immediate }) => {

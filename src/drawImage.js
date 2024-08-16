@@ -1,17 +1,36 @@
-/** 
+/**
  * Original from: https://stackoverflow.com/questions/21961839/simulation-background-size-cover-in-canvas
  * Original By Ken Fyrstenberg Nilsen
- * 
+ *
  * Note: img must be fully loaded or have correct width & height set.
  */
-export default function drawImageProp({ctx, img, x, y, w, h, offsetX, offsetY} = {}) {
+export default function drawImageProp({
+  ctx,
+  img,
+  x,
+  y,
+  w,
+  h,
+  offsetX,
+  offsetY,
+  containImg,
+} = {}) {
+  // Lib
+  const isSvg = img.src.startsWith('data:image/svg');
+
   // Defaults
-  if (typeof x !== "number") x = 0;
-  if (typeof y !== "number") y = 0;
-  if (typeof w !== "number") w = ctx.canvas.width;
-  if (typeof h !== "number") h = ctx.canvas.height;
-  if (typeof offsetX !== "number") offsetX = 0.5;
-  if (typeof offsetY !== "number") offsetY = 0.5;
+  if (typeof x !== 'number') x = 0;
+  if (typeof y !== 'number') y = 0;
+  if (typeof w !== 'number') w = ctx.canvas.width;
+  if (typeof h !== 'number') h = ctx.canvas.height;
+  if (typeof offsetX !== 'number') offsetX = 0.5;
+  if (typeof offsetY !== 'number') offsetY = 0.5;
+
+  // Svg
+  if (isSvg) {
+    ctx.drawImage(img, 0, 0);
+    return;
+  }
 
   // keep bounds [0.0, 1.0]
   if (offsetX < 0) offsetX = 0;
@@ -48,6 +67,21 @@ export default function drawImageProp({ctx, img, x, y, w, h, offsetX, offsetY} =
   if (cy < 0) cy = 0;
   if (cw > iw) cw = iw;
   if (ch > ih) ch = ih;
+
+  // Contain background image
+  if (containImg) {
+    cx = 0;
+    cy = 0;
+    cw = img.width;
+    ch = img.height;
+    let hRatio = w / img.width;
+    let vRatio = h / img.height;
+    r = Math.min(hRatio, vRatio);
+    x = (w - img.width * r) / 2;
+    y = (h - img.height * r) / 2;
+    w = img.width * r;
+    h = img.height * r;
+  }
 
   // fill image in dest. rectangle
   ctx.drawImage(img, cx, cy, cw, ch, x, y, w, h);
